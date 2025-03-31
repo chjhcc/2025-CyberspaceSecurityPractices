@@ -10,7 +10,28 @@
 ![](./克隆.jar包到宿主机.png)
 ## 通过反编译工具得到漏洞源代码，从而分析漏洞代码部分
 ![](./反编译源码.png)
-## 分析源码得到漏洞部分代码为“logger.error("{}",payload);logger.info("{}",payload);”
+## 分析源码得到漏洞片段代码漏洞核心位于 /hello 接口的 logger.error() 或 logger.info() 调用处，当用户控制的 payload 参数包含 JNDI注入恶意字符串 时，会触发远程代码执行（RCE）
+~~~
+@GetMapping({"/hello"})
+@ResponseBody
+public String hello(String payload) {
+    // 危险：临时启用JNDI远程代码加载（实际环境中绝对禁止！）
+    System.setProperty("com.sun.jndi.ldap.object.trustURLCodebase", "true");
+    System.setProperty("com.sun.jndi.rmi.object.trustURLcodebase", "true");
+    
+    // 漏洞触发点：直接记录未过滤的用户输入
+    logger.error("{}", payload);  // 使用占位符仍不安全（低版本Log4j2）
+    logger.info("{}", payload);
+    logger.info(payload);         // 直接记录风险最高
+    logger.error(payload);
+    return "ok";
+}
+~~~
+## 攻击流程：
+### 1.应用记录日志时解析 ${jndi:ldap://...}。
+### 2.向恶意LDAP服务器请求 Exploit.class。
+### 3.加载并执行远程恶意代码。
+
 ## 验证漏洞可利用性：使用Poc手动测试漏洞，其中利用dnslog.cn生成随机域名
 ![](./获取dns.png)
 ## 使用curl指令触发一次域名解析请求
