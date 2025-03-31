@@ -129,3 +129,30 @@ docker restart 会重新启动一个已经运行的容器，但它不会重新�
 
 
 
+## 3、修复检测与绕过测试
+
+>3.1对更新后的Struts2容器进行nmap扫描
+`nmap -p 55204 192.168.56.102`
+![nmap扫描](验证与绕过/nmap扫描端口.png)
+
+Nmap 扫描结果显示 55204 端口是开放的，但其服务被标记为 unknown，说明 Nmap 无法自动识别它的服务类型。这可能意味着：
+Struts2 服务运行在该端口，但路径不清楚。
+端口可能是 Docker 容器映射的端口，需要检查 Struts2 具体运行在哪个路径。
+该端口可能运行了一个代理或中间层（如 WAF），导致直接访问 Struts2 失败。
+
+>3.2使用curl手动扫描
+`curl -v http://192.168.56.102:55204/`
+![curl 扫描](验证与绕过/手动扫描.png)
+
+curl 访问 http://192.168.56.102:55204/ 返回 404 Not Found，说明该端口的 Web 服务器 Jetty 是正常运行的，但没有正确的路径映射到 .action 处理逻辑。
+
+>3.3
+目标是找到 正确的 .action 入口点，然后测试漏洞利用。
+使用较为强力的gobuster进行扫描
+`gobuster dir -u http://192.168.56.102:55204/ -w /usr/share/wordlists/dirb/common.txt`
+![gobuster扫描](验证与绕过/gobuster目录扫描.png)
+
+gobuster 目录扫描 没有发现有效的路径，这说明：
+目标服务器可能没有直接暴露 Web 目录（所有访问 /xxxx 的请求都返回 404）。
+Struts2 入口点可能不是常见路径（如 /index.action、/login.action）。
+服务器可能配置了 URL 重写或 WAF，阻止了扫描器的正常工作。
