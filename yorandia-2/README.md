@@ -6,7 +6,7 @@
 -  环境搭建：vulfocus
     - 网卡：
       - 核心网：192.169.85.0/24
-      - 三层王：192.169.76.0/24
+      - 三层网：192.169.76.0/24
       - DMZ: 192.170.84.0/24
       - 迷惑网卡: 192.168.100.0/24
     - 漏洞容器
@@ -39,6 +39,7 @@ Oracle，以及PDO的支持。ThinkPHP有着丰富的文档和示例，框架的
 ![](./images/Jenkins漏斗的漏洞报告.png)
 
 - att&ck Navigator
+
 ![](./images/attack&navigator%20视图1.png)
 ![](./images/attack&navigator.png)
 ![](./images/attack-navigator视图2.png)
