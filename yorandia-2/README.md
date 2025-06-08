@@ -192,7 +192,9 @@ msf6> hosts #查看存活主机
 ![](./images/诱惑内网三个暴露的容器.png)
 **确定了主机的存活和端口的开放，接下来就是进行漏洞利用了**
 
-3. **socks代理**
+## 迷惑网卡层的漏洞利用
+
+1. **socks代理**
 先测试网络联通性是否正常
 ```shell
 # 在刚刚拿到的第一个终端中
@@ -216,8 +218,8 @@ proxy chain curl -I 192.168.100.2 # 测试socks代理
 ![](./images/proxy访问成功打印thinkphp的页面.png)
 **这里收集到了极其重要的信息，```5.1.30版本的thinkphp```漏洞,使用的php/7.2.12版本**
 可以直接搜索到这个漏洞的[漏洞报告](https://paper.seebug.org/760/)
-![](./images/thinkphp漏洞报告.png)
-4. **漏洞利用**
+![](./images/thinkphp漏洞报2.png)
+2. **漏洞利用**
 首先直接在metasploit中搜索thinkphp漏洞
 ```ruby
 search thinkphp
