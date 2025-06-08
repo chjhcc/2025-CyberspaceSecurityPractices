@@ -71,6 +71,3 @@ eval "return 1" 0
 eval 'return io.popen("id"):read("*a")' 0
 ```
 上图中可以看到也不可以执行，说明漏洞利用完全封堵
-
-## 漏洞利用检测
-
