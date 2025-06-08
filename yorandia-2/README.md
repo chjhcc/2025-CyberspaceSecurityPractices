@@ -99,11 +99,7 @@ curl -X POST "http://<ip>:<port>/website/blog/" -d '{"name":"test"}' #攻击负�
 
 最初验证失败的原因是：空数据库导致查询结果集为空，使脚本执行被跳过（hits.total=0 → 不执行 script_fields）
 
-而这条脚本完成了关键步骤：
 
-graph LR
-A[创建索引/文档] --> B[构建有效查询环境]
-B --> C[激活脚本执行]
 
 **具体原理**：
 创建存储结构：
