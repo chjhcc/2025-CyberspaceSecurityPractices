@@ -1,5 +1,6 @@
 # 漏洞攻防场景初体验
 
+
 ## 1.环境搭建：
 ### 网络拓扑：
 **kali-attacker：192.168.70.7**
@@ -11,11 +12,11 @@
 ![](./images/网卡编排.png)
 
 * 这样就可以编排我们的场景：
-1. 第一层靶机：struts2-cve-2020_17530:latest容器，端口选择开放，这样我们就得到了唯一开放的入口。
+1. 第一层靶机：```struts2-cve-2020_17530:latest```容器，端口选择开放，这样我们就得到了唯一开放的入口。
 2. 第一层网卡：DMZ,直接添加就好
-3. 第二层靶机：三个weblogic-cve_2019_2725:latest容器，端口选择关闭，因为我们不能有第二个入口靶标志，所以需要将这个容器的端口关闭，这样我们就直接无法进入到第二层靶机了。
+3. 第二层靶机：三个```weblogic-cve_2019_2725:latest```容器，端口选择关闭，因为我们不能有第二个入口靶标志，所以需要将这个容器的端口关闭，这样我们就直接无法进入到第二层靶机了。
 4. 第二层网卡：核心网，直接添加就好
-5. 第三层靶机：c4pr1c3/vulshare_nginx-php-flag:latest
+5. 第三层靶机：```c4pr1c3/vulshare_nginx-php-flag:latest```
 * 具体场景编排如下：
 ![](./images/场景编排管理.png)
 **将其保存并发布后，点击启动场景**
@@ -39,25 +40,23 @@ docker run --rm --net=container:${container_name} -v ${PWD}/tcpdump/${container_
 *安装metasploit*：
 ```bash
 sudo apt install -y metasploit-framework
-
 # 初始化 metasploit 本地工作数据库
 sudo msfdb init
-```
-![](./images/安装metaspoloit.png)
-![](./images/初始化数据库.png)
-**进入metasploit**：
-```bash
+
 # 启动 msfconsole
 msfconsole
-
 # 确认已连接 pgsql
 db_status
-
 # 建立工作区
 workspace -a demo
 ```
+![](./images/安装metaspoloit.png)
+![](./images/初始化数据库.png)
+
 ![好帅的图](./images/启用metaspoilt.png)
 ![](./images/连接到sql并建立工作区.png)
+
+
 
 3. 通过**上帝视角**我们知道我们要攻击的是struts2漏洞，所以直接在metasploit中搜索struts2漏洞，并使用exp进行攻击：
 ```bash
@@ -133,12 +132,12 @@ show options ## 查看参数
 set RHOSTS 192.170.84.2-254 ##根据子网掩码推导
 set ports 7001 ##根据上帝视角
 set THREADS 10 ## 设置线程数
+
+run ## 运行扫描
 ```
 ![](./images/设置tcp扫描端口参数.png)
 
-```bash
-run ## 运行扫描
-```
+
 ![](./images/端口扫描出来三个主机.png)
 **说明7001端口扫描出来是开放的**
 * 但是我们还需要验证
@@ -146,9 +145,8 @@ run ## 运行扫描
 curl http://192.170.84.2:7001/ -vv ## 验证7001端口是否开放
 ```
 ![](./images/在第一个容器中验证7001开放.png)
-**404 说明网络层联通只是应用层错误**
 ![](./images/404说明网络层联通只是应用层错误.png)
-
+**404 说明网络层联通只是应用层错误**
 这样就证明了我们的内网确实有三个靶机在7001端口开放，所以就发现了第2到4个靶标
 
 ### 攻破2、3、4靶标
